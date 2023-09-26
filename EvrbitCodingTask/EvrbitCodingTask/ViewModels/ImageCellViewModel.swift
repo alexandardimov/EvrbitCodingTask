@@ -11,7 +11,7 @@ class ImageCellViewModel: ObservableObject {
     @Published var image: ImageModel
     
     var url: URL {
-        URL(string: self.image.urls["regular"]!)!
+        URL(string: self.image.url)!
     }
     
     init(image: ImageModel) {

@@ -17,7 +17,7 @@ class MockNetworkManager: NetworkManaging {
         self.error = error
     }
     
-    func fetch<T: Decodable>(endpoint: Endpoint) async throws -> T {
+    func fetch(endpoint: Endpoint) async throws -> [ImageModel] {
         if let error = error {
             throw error
         } else {
@@ -25,7 +25,15 @@ class MockNetworkManager: NetworkManaging {
             if  endPointPath == "/photos" {
                 fetchPostsCalled = true
                 let jsonData = MockData.images.data(using: .utf8)!
-                return try JSONDecoder().decode([ImageModel].self, from: jsonData) as! T
+                
+                var imageModels: [ImageModel] = []
+                if let json = try (JSONSerialization.jsonObject(with: jsonData, options: [])) as? [[String : Any]] {
+                    for image in json {
+                        imageModels.append(ImageModel(id: image["id"] as! String, url: (image["urls"] as! [String : String])["regular"]!))
+                    }
+                }
+                
+                return imageModels
             } else {
                 throw NetworkError.invalidEndpoint
             }

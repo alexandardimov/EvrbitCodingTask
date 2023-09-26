@@ -11,6 +11,8 @@ import Combine
 struct ImageListView: View {
     @StateObject var viewModel: ImageListViewModel
     
+    @State private var searchText = ""
+    
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
     
@@ -24,7 +26,7 @@ struct ImageListView: View {
                                 // Fetch next page if needed
                                 Task {
                                     if viewModel.shouldFetchNextPage(image) {
-                                        await fetchData()
+                                        await fetchData(searchText: searchText, isFetchedNextPage: true)
                                     }
                                 }
                             }
@@ -32,23 +34,44 @@ struct ImageListView: View {
                 }
                 .padding()
                 .task {
-                    await fetchData()
+                    await fetchData(searchText: searchText)
                 }
+                SearchedView(fetchData: fetchData)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .alert(isPresented: $showErrorAlert) {
                 Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
             }
-            .navigationTitle("Image Grid List")
+            .navigationTitle("Evrbit")
+        }.searchable(text: $searchText, prompt: "Search Images").onSubmit(of: .search) {
+            Task {
+                await fetchData(searchText: searchText)
+            }
         }
     }
     
-    private func fetchData() async {
+    private func fetchData(searchText: String, isFetchedNextPage: Bool = false) async {
         do {
-            try await viewModel.fetchData()
+            try await viewModel.fetchData(searchText: searchText, isFetchedNextPage: isFetchedNextPage)
         } catch {
             errorMessage = error.localizedDescription
             showErrorAlert = true
+        }
+    }
+}
+
+struct SearchedView: View {
+    @Environment(\.isSearching) private var isSearching
+    
+    var fetchData: (String, Bool) async -> Void
+    
+    var body: some View {
+        Text("").onChange(of: isSearching) { newValue in
+            if !newValue {
+                Task {
+                    await fetchData("", false)
+                }
+            }
         }
     }
 }

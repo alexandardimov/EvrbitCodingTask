@@ -28,7 +28,7 @@ class ImageListViewModelTests: XCTestCase {
     
     func testFetchData() async throws {
         
-        try await viewModel.fetchData()
+        try await viewModel.fetchData(searchText: "", isFetchedNextPage: false)
         
         let expectation = XCTestExpectation(description: "Fetch data Functions are called")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -43,7 +43,7 @@ class ImageListViewModelTests: XCTestCase {
     
     func testFetchImages() async throws {
         
-        try await self.viewModel.fetchData()
+        try await self.viewModel.fetchData(searchText: "", isFetchedNextPage: false)
         
         let expectation = XCTestExpectation(description: "Check Post Count")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -59,9 +59,9 @@ class ImageListViewModelTests: XCTestCase {
     
     func testImageCellViewModelSuccess() async throws {
 
-        let image = ImageModel(id: "_tDdlCJIwOA", urls: [:])
+        let image = ImageModel(id: "_tDdlCJIwOA", url: "")
 
-        try await viewModel.fetchData()
+        try await viewModel.fetchData(searchText: "", isFetchedNextPage: false)
 
         let expectation = XCTestExpectation(description: "Fetch Data and match Post Cell ViewModel")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -84,7 +84,7 @@ class ImageListViewModelTests: XCTestCase {
         let viewModel = ImageListViewModel(networkManager: mockNetworkManager)
 
         do {
-            try await viewModel.fetchData()
+            try await viewModel.fetchData(searchText: "", isFetchedNextPage: false)
         } catch  let err {
             XCTAssertEqual(err.localizedDescription, NetworkError.invalidEndpoint.localizedDescription)
         }
@@ -99,7 +99,7 @@ class ImageListViewModelTests: XCTestCase {
         let viewModel = ImageListViewModel(networkManager: mockNetworkManager)
 
         do {
-            try await viewModel.fetchData()
+            try await viewModel.fetchData(searchText: "", isFetchedNextPage: false)
         } catch  let err {
             XCTAssertEqual(err.localizedDescription, NetworkError.invalidEndpoint.localizedDescription)
         }
@@ -115,7 +115,7 @@ class ImageListViewModelTests: XCTestCase {
         let viewModel = ImageListViewModel(networkManager: mockNetworkManager)
 
         do {
-            try await viewModel.fetchData()
+            try await viewModel.fetchData(searchText: "", isFetchedNextPage: false)
         } catch  let err {
             XCTAssertNotNil(err)
         }

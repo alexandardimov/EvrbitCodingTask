@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 protocol NetworkManaging {
-    func fetch<T: Decodable>(endpoint: Endpoint) async throws -> T
+    func fetch(endpoint: Endpoint) async throws -> [ImageModel]
 }
 
 class NetworkManager: NetworkManaging {
@@ -19,11 +19,22 @@ class NetworkManager: NetworkManaging {
         self.session = session
     }
     
-    func fetch<T: Decodable>(endpoint: Endpoint) async throws -> T {
+    func fetch(endpoint: Endpoint) async throws -> [ImageModel] {
         let request = try createRequest(for: endpoint)
         let (data, _) = try await session.data(for: request)
-        let decodedObject = try JSONDecoder().decode(T.self, from: data)
-        return decodedObject
+        var imageModels: [ImageModel] = []
+        if let json = try (JSONSerialization.jsonObject(with: data, options: [])) as? [[String : Any]] {
+            for image in json {
+                imageModels.append(ImageModel(id: image["id"] as! String, url: (image["urls"] as! [String : String])["regular"]!))
+            }
+        }
+        if let json = try (JSONSerialization.jsonObject(with: data, options: [])) as? [String : Any] {
+            for image in json["results"] as! [[String : Any]] {
+                imageModels.append(ImageModel(id: image["id"] as! String, url: (image["urls"] as! [String : String])["regular"]!))
+            }
+        }
+        
+        return imageModels
     }
     
     private func createRequest(for endpoint: Endpoint) throws -> URLRequest {

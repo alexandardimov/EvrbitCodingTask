@@ -20,20 +20,23 @@ class ImageListViewModel: ObservableObject {
     }
     
     // Handle Network Call here
-    func fetchData() async  throws {
+    func fetchData(searchText: String, isFetchedNextPage: Bool) async  throws {
         guard !isFetchingData else { return }
         
         isFetchingData = true
         
         do {
-            let fetchedImages: [ImageModel] = try await networkManager.fetch(endpoint: Endpoint(.list, ["client_id" : clientId, "page": "\(page)", "per_page": "\(pageSize)"]))
+            let path = searchText.isEmpty ? Paths.list : Paths.search
+            
+            let fetchedImages: [ImageModel] = try await networkManager.fetch(endpoint: Endpoint(path, ["query" : searchText, "client_id" : clientId, "page": "\(page)", "per_page": "\(pageSize)"]))
             
             DispatchQueue.main.async {
+                if !isFetchedNextPage { self.images.removeAll() }
                 self.images.append(contentsOf: fetchedImages)
                 self.isFetchingData = false
             }
             
-            page += 1
+            page = isFetchedNextPage ? page + 1 : 1
         } catch {
             DispatchQueue.main.async {
                 self.isFetchingData = false

@@ -7,7 +7,12 @@
 
 import Foundation
 
-struct ImageModel: Codable, Identifiable {
+struct ImageModel: Identifiable {
     let id: String
-    let urls: [String : String]
+    let url: String
+    
+    init(id: String, url: String) {
+        self.id = id
+        self.url = url
+    }
 }

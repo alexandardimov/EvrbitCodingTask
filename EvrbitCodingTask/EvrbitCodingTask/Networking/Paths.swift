@@ -9,6 +9,7 @@ import Foundation
 
 enum Paths {
     case list
+    case search
 }
 
 extension Paths {
@@ -16,6 +17,8 @@ extension Paths {
         switch self {
         case .list:
             return "/photos"
+        case .search:
+            return "/search/photos"
         }
     }
 }
